@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import sys
+import multiprocessing
+
 class Config(object):
     def __init__(self,configfile):
         self._configfile = configfile
@@ -12,7 +15,7 @@ class Config(object):
                 s = line.split('=')
                 fkey = s[0].strip()
                 fvalue = s[1].strip()
-                config[fkey] = fvalue
+                config[fkey] = float(fvalue)
         return config 
 
 
@@ -28,7 +31,7 @@ class UserData(object):
                 s = line.split(',')
                 fkey = s[0].strip()
                 fvalue = s[1].strip()
-                userdata[fkey] = fvalue
+                userdata[fkey] = float(fvalue)
         return userdata
     
       
@@ -74,28 +77,21 @@ class Salary(object):
     @property
     def aftax(self):
         return self._bftax - self.soinsur - self.pitax                          
+class Argument(object):
+    def __init__(self,arg):
+        self._arg = arg
+    @property
+    def ne_arg(self):
+        arglist = sys.argv[1:]
+        arg_index =arglist.index(self._arg)
+        return arglist[arg_index + 1]
+
 
 if __name__ == '__main__':
-    import sys
-    args_list = sys.argv[1:]
-    try:   
-        if len(args_list) == 6 and '-c' in args_list and '-d' in args_list  and '-o' in args_list:
-            c_index = args_list.index('-c')
-            configfile = args_list[c_index + 1]
-            config = Config(configfile)
-            d_index = args_list.index('-d')
-            userdatafile = args_list[d_index + 1]
-            userdata = UserData(userdatafile)
-            basel = float(config.config['JiShuL'])
-            baseh = float(config.config['JiShuH'])
-            soinsurp = float(config.config['YangLao']) + float(config.config['YiLiao']) + float(config.config['GongJiJin']) + float(config.config['GongShang']) +float(config.config['ShiYe']) + float(config.config['ShengYu'])
-            o_index = args_list.index('-o')
-            outputfile = args_list[o_index + 1]
-            for k,v in userdata.userdata.items():
-                salary = Salary(float(v),soinsurp,basel,baseh)
-                with open(outputfile,'a') as f:
-                    f.write(k + ',' + v + ',' + '{:.2f}'.format(salary.soinsur) + ',' + '{:.2f}'.format(salary.pitax) + ',' + '{:.2f}'.format(salary.aftax) + "\n")                                                                                                     
-        else:
-            raise ParameterError
-    except:
-        print('ParameterError')   
+    argc = Argument('-c')
+    config_argc = Config(argc.ne_arg)
+    soinsurp = config_argc.config['ShengYu'] + config_argc.config['YangLao'] + config_argc.config['YiLiao'] + config_argc.config['GongJiJin'] + config_argc['GongShang'] + config_argc['ShiYe']
+    basel = config_argc.config['JiShuL']
+    baseh = config_argc.config['JiShuH']
+
+       
