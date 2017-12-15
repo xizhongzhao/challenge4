@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-import multiprocessing
+from multiprocessing import Queue,Process
 
 class Config(object):
     def __init__(self,configfile):
@@ -31,7 +31,7 @@ class UserData(object):
                 s = line.split(',')
                 fkey = s[0].strip()
                 fvalue = s[1].strip()
-                userdata[fkey] = float(fvalue)
+                userdata[fkey] = int(fvalue)
         return userdata
     
       
@@ -87,22 +87,23 @@ class Argument(object):
         return arglist[arg_index + 1]
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     argc = Argument('-c')
     config_argc = Config(argc.ne_arg)
-    soinsurp = config_argc.config['ShengYu'] + config_argc.config['YangLao'] + config_argc.config['YiLiao'] + config_argc.config['GongJiJin'] + config_argc['GongShang'] + config_argc['ShiYe']
+    soinsurp = config_argc.config['ShengYu'] + config_argc.config['YangLao'] + config_argc.config['YiLiao'] + config_argc.config['GongJiJin'] + config_argc.config['GongShang'] + config_argc.config['ShiYe']
     basel = config_argc.config['JiShuL']
     baseh = config_argc.config['JiShuH']
     argd = Argument('-d')
-    userdata_argd = UserData(argd.ne_arg)
     argo = Argument('-o')
     queue = Queue() 
-    def putdata():
-        for v in userdata_argd.userdata.items():
-            queue.put(v)
-    def comp_func(lock):
+    def putdata(arg):
+        for k,v in UserData(arg).userdata.items():
+            queue.put(k,v)
+    def comp_func():
         bftax = queue.get()
-        with lock
-             salary = Salary(bftax,soinsurp,basel,baseh)
-             salary.pitax
-             salary.aftax         
+        salary = Salary(bftax,soinsurp,basel,baseh)
+        salary.pitax
+        salary.aftax
+    p = Process(target=putdata,args=(argd.ne_arg,))
+    p.start()
+    print(queue.get())      
