@@ -89,58 +89,61 @@ class Argument(object):
 que1 = Queue()
 que2 = Queue()
 
-def putdata(arg):
+def putdata(arg,lock):
      _argument = Argument(arg)
-     g = ( v for v in\
+     g = [ (k,v) for k,v in\
      UserData(_argument.ne_arg).\
-     userdata.values())
-     for i in g:
-         que1.put(i)
+     userdata.items()]
+     with lock:
+         for i in g:
+             que1.put(i)
 
 def comp_func(soinsurp,basel,baseh):
-    for i in g:
-         bftax = i[1]
-         salary = Salary(bftax,soinsurp,basel,baseh)
-         sal_tuple = (i[0],salary._bftax,salary.soinsur,salary.pitax,\
-                       salary.aftax)
-         sal_list.append(sal_tuple)
-    que2.put(sal_list)
+        while True:
+            if que1.empty():
+                break
+            else:
+                i = que1.get()
+                bftax = i[1]
+                salary = Salary(bftax,soinsurp,basel,baseh)
+                sal_list = [i[0],i[1],salary.soinsur,salary.pitax,\
+                     salary.aftax]
+                que2.put(sal_list)
 
 def outfile(arg):
-    sal_list = que2.get() 
     _argument = Argument(arg)
-    with open(_argument.ne_arg,'a') as file:
-         file.write(sal_list[0])
-         for i in sal_list[1:]:
-             file.write(','+'{:.2f}'.format(i)) 
+    while True:
+        if que2.empty():
+            break
+        else:
+            lis = que2.get()       
+            with open(_argument.ne_arg,'w') as file:
+                file.write(lis[0])
+                for i in lis[1:]:
+                    file.write(','+'{:.2f}'.format(i))
+                file.write('\n')
+
 if __name__ == '__main__': 
-    #try:
-    arglist = sys.argv[1:]
-    if len(arglist) ==6 and '-c' in arglist and\
+    try:
+        arglist = sys.argv[1:]
+        if len(arglist) ==6 and '-c' in arglist and\
         '-d' in arglist and '-o' in arglist:
-         argc = Argument('-c')
-         config_argc = Config(argc.ne_arg)
-         soinsurp = config_argc.config['ShengYu'] 
-         + config_argc.config['YangLao'] 
-         + config_argc.config['YiLiao'] 
-         + config_argc.config['GongJiJin']  
-         + config_argc.config['GongShang'] 
-         + config_argc.config['ShiYe']
-         basel = config_argc.config['JiShuL']
-         baseh = config_argc.config['JiShuH']
-         lock = Lock()
-         Process(target=putdata,args=('-d',)).start()
-         while True:
-             print(que1.get())
-             if que1.empty():
-                 break
-         #Process(target=comp_func,args=(soinsurp,basel,baseh)).start()
-         #Process(target=outfile,args=('-o',)).start()
-        #else:  
-            #raise "Parameter Error"
-    #except:
-        #print("Parameter Error")
+            argc = Argument('-c')
+            config_argc = Config(argc.ne_arg)
+            soinsurp = config_argc.config['ShengYu'] + config_argc.config['YangLao'] + config_argc.config['YiLiao'] + config_argc.config['GongJiJin'] + config_argc.config['GongShang'] + config_argc.config['ShiYe']
+            basel = config_argc.config['JiShuL']
+            baseh = config_argc.config['JiShuH']
+            lock = Lock()
+            Process(target=putdata,args=('-d',lock)).start()
+            Process(target=comp_func,args=(soinsurp,basel,baseh)).start()
+            #print(que2.get())
+            Process(target=outfile,args=('-o',)).start()
+            #    if que1.empty():
+            #        break
+        else:  
+             raise "Parameter Error"
+    except:
+        print("Parameter Error")
    
         
-   
-
+  
