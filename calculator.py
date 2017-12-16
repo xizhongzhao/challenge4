@@ -103,17 +103,18 @@ if __name__ == '__main__':
     def comp_func():
         bftaxlist = que1.get()
         g = (bftaxlist)
+        sal_list = []
         for i in g:
-            sal_list=[]
             bftax = i[1]
             salary = Salary(bftax,soinsurp,basel,baseh)
             sal_tuple = (i[0],salary._bftax,salary.soinsur,salary.pitax,\
                         salary.aftax)
             sal_list.append(sal_tuple)
+        que2.put(sal_list)
+   
+    def outfile():
+        datalist = que2.get() 
         
-        print(sal_list)
-    putdata('-d')
-    comp_func()
    
 
  
