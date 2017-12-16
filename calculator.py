@@ -94,37 +94,34 @@ def putdata(arg,lock):
      g = [ (k,v) for k,v in\
      UserData(_argument.ne_arg).\
      userdata.items()]
-     with lock:
-         for i in g:
-             que1.put(i)
+     for i in g:
+        with lock:
+            que1.put(i)
 
 def comp_func(soinsurp,basel,baseh,lock):
         while True:
+            i = que1.get()
+            bftax = i[1]
+            salary = Salary(bftax,soinsurp,basel,baseh)
+            sal_list = [i[0],i[1],salary.soinsur,salary.pitax,\
+                     salary.aftax]
+            with lock:
+                que2.put(sal_list)
             if que1.empty():
                 break
-            else:
-                i = que1.get()
-                bftax = i[1]
-                salary = Salary(bftax,soinsurp,basel,baseh)
-                sal_list = [i[0],i[1],salary.soinsur,salary.pitax,\
-                     salary.aftax]
-                with lock:
-                    que2.put(sal_list)
 
 
 def outfile(arg):
     _argument = Argument(arg)
     while True:
+        lis = que2.get()       
+        with open(_argument.ne_arg,'a') as file:
+            file.write(lis[0])
+            for i in lis[1:]:
+                file.write(','+'{:.2f}'.format(i))
+            file.write('\n')
         if que2.empty():
-            break
-        else:
-            lis = que2.get()       
-            with open(_argument.ne_arg,'a') as file:
-                file.write(lis[0])
-                for i in lis[1:]:
-                    file.write(','+'{:.2f}'.format(i))
-                file.write('\n')
-
+            break     
 if __name__ == '__main__': 
     try:
         arglist = sys.argv[1:]
