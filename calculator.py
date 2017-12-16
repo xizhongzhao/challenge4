@@ -98,7 +98,7 @@ def putdata(arg,lock):
          for i in g:
              que1.put(i)
 
-def comp_func(soinsurp,basel,baseh):
+def comp_func(soinsurp,basel,baseh,lock):
         while True:
             if que1.empty():
                 break
@@ -108,7 +108,9 @@ def comp_func(soinsurp,basel,baseh):
                 salary = Salary(bftax,soinsurp,basel,baseh)
                 sal_list = [i[0],i[1],salary.soinsur,salary.pitax,\
                      salary.aftax]
-                que2.put(sal_list)
+                with lock:
+                    que2.put(sal_list)
+
 
 def outfile(arg):
     _argument = Argument(arg)
@@ -117,7 +119,7 @@ def outfile(arg):
             break
         else:
             lis = que2.get()       
-            with open(_argument.ne_arg,'w') as file:
+            with open(_argument.ne_arg,'a') as file:
                 file.write(lis[0])
                 for i in lis[1:]:
                     file.write(','+'{:.2f}'.format(i))
@@ -133,9 +135,10 @@ if __name__ == '__main__':
             soinsurp = config_argc.config['ShengYu'] + config_argc.config['YangLao'] + config_argc.config['YiLiao'] + config_argc.config['GongJiJin'] + config_argc.config['GongShang'] + config_argc.config['ShiYe']
             basel = config_argc.config['JiShuL']
             baseh = config_argc.config['JiShuH']
-            lock = Lock()
-            Process(target=putdata,args=('-d',lock)).start()
-            Process(target=comp_func,args=(soinsurp,basel,baseh)).start()
+            lo1 = Lock()
+            lo2 = Lock()
+            Process(target=putdata,args=('-d',lo1)).start()
+            Process(target=comp_func,args=(soinsurp,basel,baseh,lo2)).start()
             #print(que2.get())
             Process(target=outfile,args=('-o',)).start()
             #    if que1.empty():
