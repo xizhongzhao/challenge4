@@ -97,12 +97,14 @@ if __name__ == '__main__':
     que2 = Queue()
     def putdata(arg):
         _argument = Argument(arg)
-        for k,v in UserData(_argument.ne_arg).userdata.items():
-            que1.put(v)
+        quelist =[v for v in UserData(_argument.ne_arg).userdata.values()]
+        que1.put(quelist)
     def comp_func():
-        bftax = que1.get()
-        salary = Salary(bftax,soinsurp,basel,baseh)
-        salary.pitax
-        salary.aftax
+        bftaxlist = que1.get()
+        for bftax in bftaxlist:
+            salary = Salary(bftax,soinsurp,basel,baseh)
+            sal_list = [salary._bftax,salary.soinsur,salary.pitax,salary.aftax]
+            return sal_list 
     putdata('-d')
-    print(que1.get())
+    for i in comp_func():
+        print(i)
