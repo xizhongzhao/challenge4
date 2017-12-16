@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-from multiprocessing import Queue,Process
+from multiprocessing import Queue,Process,Lock
 
 class Config(object):
     def __init__(self,configfile):
@@ -118,21 +118,21 @@ if __name__ == '__main__':
     try:
         arglist = sys.argv[1:]
         if len(arglist) ==6 and '-c' in arglist and\
-        '-d' in arglist and '-o'in arglist
+        '-d' in arglist and '-o' in arglist:
             argc = Argument('-c')
             config_argc = Config(argc.ne_arg)
-            soinsurp = config_argc.config['ShengYu']\ 
-               + config_argc.config['YangLao'] \
-               + config_argc.config['YiLiao'] \
-               + config_argc.config['GongJiJin']\  
-               + config_argc.config['GongShang'] \
-               + config_argc.config['ShiYe']
+            soinsurp = config_argc.config['ShengYu'] 
+            + config_argc.config['YangLao'] 
+            + config_argc.config['YiLiao'] 
+            + config_argc.config['GongJiJin']  
+            + config_argc.config['GongShang'] 
+            + config_argc.config['ShiYe']
             basel = config_argc.config['JiShuL']
             baseh = config_argc.config['JiShuH']
             lock = Lock()
             Process(target=putdata,arg=('-d',)).start()
             Process(target=comp_func,arg=(soinsur,basel,baseh,lock)).start()
-            Process(target=outfile,arg=('-o')).start()
+            Process(target=outfile,arg=('-o',)).start()
         else:  
             raise "Parameter Error"
     except:
