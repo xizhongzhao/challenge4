@@ -93,18 +93,27 @@ if __name__ == '__main__':
     soinsurp = config_argc.config['ShengYu'] + config_argc.config['YangLao'] + config_argc.config['YiLiao'] + config_argc.config['GongJiJin'] + config_argc.config['GongShang'] + config_argc.config['ShiYe']
     basel = config_argc.config['JiShuL']
     baseh = config_argc.config['JiShuH']
+    #
     que1 = Queue() 
     que2 = Queue()
     def putdata(arg):
         _argument = Argument(arg)
-        quelist =[v for v in UserData(_argument.ne_arg).userdata.values()]
+        quelist =[(k,v) for k, v in UserData(_argument.ne_arg).userdata.items()]
         que1.put(quelist)
     def comp_func():
         bftaxlist = que1.get()
-        for bftax in bftaxlist:
+        g = (bftaxlist)
+        for i in g:
+            sal_list=[]
+            bftax = i[1]
             salary = Salary(bftax,soinsurp,basel,baseh)
-            sal_list = [salary._bftax,salary.soinsur,salary.pitax,salary.aftax]
-            return sal_list 
+            sal_tuple = (i[0],salary._bftax,salary.soinsur,salary.pitax,\
+                        salary.aftax)
+            sal_list.append(sal_tuple)
+        
+        print(sal_list)
     putdata('-d')
-    for i in comp_func():
-        print(i)
+    comp_func()
+   
+
+ 
