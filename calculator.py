@@ -99,10 +99,10 @@ if __name__ == '__main__':
         _argument = Argument(arg)
         for k,v in UserData(_argument.ne_arg).userdata.items():
             que1.put(v)
-            print(que1.put(v))
     def comp_func():
         bftax = que1.get()
         salary = Salary(bftax,soinsurp,basel,baseh)
         salary.pitax
         salary.aftax
     putdata('-d')
+    print(que1.get())
