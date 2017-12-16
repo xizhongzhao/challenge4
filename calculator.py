@@ -93,17 +93,16 @@ if __name__ == '__main__':
     soinsurp = config_argc.config['ShengYu'] + config_argc.config['YangLao'] + config_argc.config['YiLiao'] + config_argc.config['GongJiJin'] + config_argc.config['GongShang'] + config_argc.config['ShiYe']
     basel = config_argc.config['JiShuL']
     baseh = config_argc.config['JiShuH']
-    argd = Argument('-d')
-    argo = Argument('-o')
-    queue = Queue() 
+    que1 = Queue() 
+    que2 = Queue()
     def putdata(arg):
-        for k,v in UserData(arg).userdata.items():
-            queue.put(k,v)
+        _argument = Argument(arg)
+        for k,v in UserData(_argument.ne_arg).userdata.items():
+            que1.put(v)
+            print(que1.put(v))
     def comp_func():
-        bftax = queue.get()
+        bftax = que1.get()
         salary = Salary(bftax,soinsurp,basel,baseh)
         salary.pitax
         salary.aftax
-    p = Process(target=putdata,args=(argd.ne_arg,))
-    p.start()
-    print(queue.get())      
+    putdata('-d')
